@@ -1,24 +1,22 @@
+#%%
 # Alpaca Algorithmic Trading
-import requests
 import alpaca_trade_api as tradeapi
 
 
-my_headers = {'Authorization' : 'Bearer {access_token}'}
-response = requests.get(, headers=my_headers)
-
-session = requests.Session()
-session.headers.update({'Authorization': 'Bearer {access_token}'})
-response = session.get()
-
+#LIVE KEYS
 APCA_API_BASE_URL = 'https://api.alpaca.markets'
 APCA_API_KEY_ID = 'AKHJJTAOR8BIPM8NGBVS'
 APCA_API_SECRET_KEY = '7ECpCBy7MkAPLaxlqvlZQv7vj8i1zdPJ7ONemUM9'
 
+# PAPER KEYS
+APCA_API_BASE_URL_paper = 'https://paper-api.alpaca.markets'
+APCA_API_KEY_ID_paper = 'PK2887AEKCPBT1FSOMCC'
+APCA_API_SECRET_KEY_paper = 'qYoY7sc0LHAVy9bVcyk4nQuKiQtsfokIhDtAvyKP'
 
 api = tradeapi.REST(
-        APCA_API_KEY_ID,
-        'your_api_secret_here',
-        'https://paper-api.alpaca.markets'
+        APCA_API_KEY_ID_paper,
+        APCA_API_SECRET_KEY_paper,
+        APCA_API_BASE_URL_paper
     )
 
 # Get our account information.
@@ -30,6 +28,8 @@ if account.trading_blocked:
 
 # Check how much money we can use to open new positions.
 print('${} is available as buying power.'.format(account.buying_power))
+
+#%%
 
 # Submit a market order to buy 1 share of Apple at market price
 api.submit_order(

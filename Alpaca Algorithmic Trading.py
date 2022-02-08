@@ -2,8 +2,7 @@
 # Alpaca Algorithmic Trading
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest import TimeFrame
-import numpy as np
-import statistics
+import pandas as pd
 import statsmodels.tsa.api as tsa
 
 #LIVE KEYS
@@ -69,38 +68,42 @@ stock_A_closing_prices = stock_A_df['close']
 stock_B_closing_prices = stock_B_df['close']
 
 
-class pairs:
+class Pairs:
     def __init__(self, stock_pairs, stock_A_closing_prices, stock_B_closing_prices):
         self.stock_pairs = stock_pairs
         self.stock_A_closing_prices = stock_A_closing_prices
         self.stock_B_closing_prices = stock_B_closing_prices
+        self.returns_A = []
+        self.returns_B = []
         
 
     def returns(self):
-        returns_A = []
-        returns_B = []
-        for period in range(1,stock_A_closing_prices.len()):
-            returns_A.append((stock_A_closing_prices[period-1] - stock_A_closing_prices[period])/stock_A_closing_prices[period-1])
-        for period in range(1,stock_B_closing_prices.len()):
-            returns_B.append((stock_B_closing_prices[period-1] - stock_B_closing_prices[period])/stock_B_closing_prices[period-1])
-
-    def corr(self, returns_B, returns_A):
-        statistics.correlation(returns_A, returns_B)
+        for period in range(1,self.stock_A_closing_prices.size):
+            self.returns_A.append((self.stock_A_closing_prices[period-1] - self.stock_A_closing_prices[period])/self.stock_A_closing_prices[period-1])
+        for period in range(1,self.stock_B_closing_prices.size):
+            self.returns_B.append((self.stock_B_closing_prices[period-1] - self.stock_B_closing_prices[period])/self.stock_B_closing_prices[period-1])
+        self.returns_A_series = pd.Series(self.returns_A, copy=False)
+        self.returns_B_series = pd.Series(self.returns_B, copy=False)
+    
+    def corr(self):
+        print(self.returns_A_series.corr(self.returns_B_series))
 
         
+# %%
+pairs = Pairs(stock_pairs=stock_pairs, stock_A_closing_prices=stock_A_closing_prices, stock_B_closing_prices=stock_B_closing_prices)
+
+pairs.returns()
+
+pairs.corr()
 
 
+#%%
 # stationary = time series having constant mean and variance
 # stationary relation is needed for pairs trading 
 # check for co-intergration using Augmented Dickey-Fuller test
 # regression residuals may be stationary
 
 
-
-
-
-
-#%%
 class pair_algo:
     def __init__(self, data):
         self.data = api.get_bars()

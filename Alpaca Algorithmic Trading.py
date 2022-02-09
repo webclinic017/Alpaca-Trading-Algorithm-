@@ -69,13 +69,21 @@ stock_B_closing_prices = stock_B_df['close']
 
 
 class Pairs:
-    def __init__(self, stock_pairs, stock_A_closing_prices, stock_B_closing_prices):
+    def __init__(self, stock_pairs, timeframe=[]): # Don't use mutable object in arguments.
         self.stock_pairs = stock_pairs
+        self.timeframe = timeframe
+        self.start = timeframe[0]
+        self.end = timeframe[1]
+        self.pairs_df = api.get_bars(stock_pairs[0], TimeFrame.Day, self.start, self.end, adjustment='raw').df
+        self.stock_A_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][0]]
+        self.stock_B_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][1]]
+        self.stock_A_closing_prices = stock_A_df['close']
+        self.stock_B_closing_prices = stock_B_df['close']
         self.stock_A_closing_prices = stock_A_closing_prices
         self.stock_B_closing_prices = stock_B_closing_prices
         self.returns_A = []
         self.returns_B = []
-        
+
 
     def returns(self):
         for period in range(1,self.stock_A_closing_prices.size):
@@ -90,7 +98,7 @@ class Pairs:
 
         
 # %%
-pairs = Pairs(stock_pairs=stock_pairs, stock_A_closing_prices=stock_A_closing_prices, stock_B_closing_prices=stock_B_closing_prices)
+pairs = Pairs(stock_pairs=stock_pairs, timeframe=["2020-01-01", "2021-01-01"])
 
 pairs.returns()
 

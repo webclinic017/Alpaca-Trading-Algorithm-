@@ -59,15 +59,19 @@ print(f'Today\'s portfolio balance change: ${balance_change}')
 
 #%%
 
-stock_pairs = [["AAPL","GOOG"]]
+stock_pairs = [["AAPL","GOOG"], []]
+pair_dict = {} 
+for count, pair in enumerate(stock_pairs):
+    pair_dict["pair" + str(count)] = api.get_bars(stock_pairs[pair], TimeFrame.Day, "2021-01-01", "2022-01-01", adjustment='raw').df
 
-pairs_df = api.get_bars(stock_pairs[0], TimeFrame.Day, "2021-01-01", "2022-01-01", adjustment='raw').df
 stock_A_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][0]]
 stock_B_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][1]]
 stock_A_closing_prices = stock_A_df['close']
 stock_B_closing_prices = stock_B_df['close']
 
+#%%
 
+pairs_df = api.get_bars(stock_pairs[pair], TimeFrame.Day, "2021-01-01", "2022-01-01", adjustment='raw').df
 class Pairs:
     def __init__(self, stock_pairs, timeframe=[]): # Don't use mutable object in arguments.
         self.stock_pairs = stock_pairs
@@ -75,12 +79,14 @@ class Pairs:
         self.start = timeframe[0]
         self.end = timeframe[1]
         self.pairs_df = api.get_bars(stock_pairs[0], TimeFrame.Day, self.start, self.end, adjustment='raw').df
-        self.stock_A_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][0]]
-        self.stock_B_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][1]]
-        self.stock_A_closing_prices = stock_A_df['close']
-        self.stock_B_closing_prices = stock_B_df['close']
-        self.stock_A_closing_prices = stock_A_closing_prices
-        self.stock_B_closing_prices = stock_B_closing_prices
+        # might need to use setattr() while in class
+        # for count, pair in enumerate(stock_pairs):
+        #     setattr(self, "group"+str(i),api.get_bars(stock_pairs[pair], TimeFrame.Day, "2021-01-01", "2022-01-01", adjustment='raw').df)
+        self.stock_A_df = self.pairs_df.loc[self.pairs_df['symbol'] == stock_pairs[0][0]]                                    
+         # Need to generlize this for a full list of stock pairs.
+        self.stock_B_df = self.pairs_df.loc[self.pairs_df['symbol'] == stock_pairs[0][1]]
+        self.stock_A_closing_prices = self.stock_A_df['close']
+        self.stock_B_closing_prices = self.stock_B_df['close']
         self.returns_A = []
         self.returns_B = []
 
@@ -95,6 +101,9 @@ class Pairs:
     
     def corr(self):
         print(self.returns_A_series.corr(self.returns_B_series))
+
+    def rank_pairs_corr(self):
+        pass
 
         
 # %%
@@ -114,7 +123,7 @@ pairs.corr()
 
 class pair_algo:
     def __init__(self, data):
-        self.data = api.get_bars()
+        self.data = data
 
     def backtest(self, data):
         pass

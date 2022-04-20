@@ -3,15 +3,19 @@
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest import TimeFrame
 import pandas as pd
+import statistics as st
 import statsmodels.tsa.api as tsa
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sb
 
 #LIVE KEYS
-
+##########################
 
 # PAPER KEYS
-APCA_API_BASE_URL_paper = 'https://paper-api.alpaca.markets'
 APCA_API_KEY_ID_paper = 'PK2887AEKCPBT1FSOMCC'
 APCA_API_SECRET_KEY_paper = 'qYoY7sc0LHAVy9bVcyk4nQuKiQtsfokIhDtAvyKP'
+APCA_API_BASE_URL_paper = 'https://paper-api.alpaca.markets'
 
 # Market data endpoint
 APCA_API_DATA_URL = 'https://data.alpaca.markets/v2'
@@ -58,37 +62,46 @@ print(f'Today\'s portfolio balance change: ${balance_change}')
 # )
 
 #%%
+# testing code that will be in Pairs class
+# generalizing pair data for a list of stock pairs
 
 stock_pairs = [["AAPL","GOOG"], []]
 pair_dict = {} 
 for count, pair in enumerate(stock_pairs):
     pair_dict["pair" + str(count)] = api.get_bars(stock_pairs[pair], TimeFrame.Day, "2021-01-01", "2022-01-01", adjustment='raw').df
 
-stock_A_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][0]]
-stock_B_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][1]]
-stock_A_closing_prices = stock_A_df['close']
-stock_B_closing_prices = stock_B_df['close']
+# stock_A_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][0]]
+# stock_B_df = pairs_df.loc[pairs_df['symbol'] == stock_pairs[0][1]]
+# stock_A_closing_prices = stock_A_df['close']
+# stock_B_closing_prices = stock_B_df['close']
 
 #%%
 
 pairs_df = api.get_bars(stock_pairs[pair], TimeFrame.Day, "2021-01-01", "2022-01-01", adjustment='raw').df
 class Pairs:
-    def __init__(self, stock_pairs, timeframe=[]): # Don't use mutable object in arguments.
+    def __init__(self, stock_pairs, timeframe=None): # Don't use mutable object in arguments.
+        if timeframe == None:
+            self.timeframe = []
         self.stock_pairs = stock_pairs
         self.timeframe = timeframe
         self.start = timeframe[0]
         self.end = timeframe[1]
-        self.pairs_df = api.get_bars(stock_pairs[0], TimeFrame.Day, self.start, self.end, adjustment='raw').df
-        # might need to use setattr() while in class
+        self.pair_dict = {} 
+        for count, pair in enumerate(self.stock_pairs):
+            self.pair_dict["pair" + str(count)] = api.get_bars(self.stock_pairs[pair], TimeFrame.Day, self.start, self.end, adjustment='raw').df
+
+        ########### might need to use setattr() while in class. Ex:
         # for count, pair in enumerate(stock_pairs):
         #     setattr(self, "group"+str(i),api.get_bars(stock_pairs[pair], TimeFrame.Day, "2021-01-01", "2022-01-01", adjustment='raw').df)
-        self.stock_A_df = self.pairs_df.loc[self.pairs_df['symbol'] == stock_pairs[0][0]]                                    
-         # Need to generlize this for a full list of stock pairs.
-        self.stock_B_df = self.pairs_df.loc[self.pairs_df['symbol'] == stock_pairs[0][1]]
-        self.stock_A_closing_prices = self.stock_A_df['close']
-        self.stock_B_closing_prices = self.stock_B_df['close']
-        self.returns_A = []
-        self.returns_B = []
+
+        # self.stock_A_df = self.pairs_df.loc[self.pairs_df['symbol'] == stock_pairs[0][0]]                                    
+        # self.stock_B_df = self.pairs_df.loc[self.pairs_df['symbol'] == stock_pairs[0][1]]
+        ########### Need to generlize this for a full list of stock pairs.
+
+        # self.stock_A_closing_prices = self.stock_A_df['close']
+        # self.stock_B_closing_prices = self.stock_B_df['close']
+        # self.returns_A = []
+        # self.returns_B = []
 
 
     def returns(self):
@@ -104,6 +117,9 @@ class Pairs:
 
     def rank_pairs_corr(self):
         pass
+
+
+
 
         
 # %%
@@ -121,6 +137,7 @@ pairs.corr()
 # regression residuals may be stationary
 
 
+# This class will take in the data of the pairs that are determined by the Pairs class
 class pair_algo:
     def __init__(self, data):
         self.data = data
@@ -130,4 +147,45 @@ class pair_algo:
 
     def results(self, ):
         pass
+
+
+#%%
+# Exploritory next algorithm    
+#     
+# Standard deviation, Bollinger Bands, Money Flow, distance from a moving average, can all be used to locate extreme or unusual price moves. A good mean reversion indicator identifies extremes in prices that are likely to be temporary, not permanent.
+# CAR / MDD is your Compound Annual Return divided by your Maximum Draw Down.
+stock_universe = ("AAPL","GOOG","MSFT","AMZN","FB" )
+
+class universe:
+    def __init__(self, stock_universe, timeframe=None):
+        if timeframe == None:
+            self.timeframe = []
+        self.stock_universe = stock_universe
+        self.timeframe = timeframe
+        self.start = timeframe[0]
+        self.end = timeframe[1]
+        self.universe_dict = {} 
+        for count, stock in enumerate(self.stock_universe):
+            self.universe_dict["stock" + str(count)] = api.get_bars(self.stock_universe[stock], TimeFrame.Day, self.start, self.end, adjustment='raw').df
+
+        self.std = {}
+        for count, stock in enumerate(self.stock_universe):
+            self.std["stock" + str(count)] = st.stdev(self.universe_dict["stock" + str(count)])
         
+
+
+
+    pass
+
+
+
+class mean_reversion:
+    def __init__(self, data):
+        pass
+
+    def backtest(self, data):
+        pass
+
+    def results(self,):
+        pass
+

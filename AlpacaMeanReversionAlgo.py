@@ -1,3 +1,5 @@
+#%%
+from datetime import datetime
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest import TimeFrame
 import pandas as pd
@@ -6,7 +8,7 @@ import statsmodels.tsa.api as tsa
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sb
-
+import plotly.graph_objects as go
 
 # PAPER KEYS
 APCA_API_KEY_ID_paper = 'PK2887AEKCPBT1FSOMCC'
@@ -19,12 +21,28 @@ APCA_API_DATA_URL = 'https://data.alpaca.markets/v2'
 api = tradeapi.REST(
         APCA_API_KEY_ID_paper,
         APCA_API_SECRET_KEY_paper,
-        APCA_API_BASE_URL_paper
+        APCA_API_DATA_URL
     )
 
-
+#%%
+# EDA
 stock_universe = ("AAPL","GOOG","MSFT","AMZN","FB" )
 
+df = api.get_bars(stock_universe, TimeFrame.Day, "2012-01-01", "2022-01-01").df
+df = df.reset_index(level=0)
+
+line_chart = sb.lineplot(data=df, x="timestamp", y='close', hue='symbol')
+
+
+fig = go.Figure(data=[go.Candlestick(x=df['timestamp'],
+                open=df['open'],
+                high=df['high'],
+                low=df['low'],
+                close=df['close'])])
+
+fig.show()
+
+#%%
 class universe:
     def __init__(self, stock_universe, timeframe=None):
         if timeframe == None:

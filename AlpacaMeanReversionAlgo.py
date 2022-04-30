@@ -1,5 +1,6 @@
 #%%
-from datetime import datetime
+from calendar import month
+import datetime
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest import TimeFrame
 import pandas as pd
@@ -26,21 +27,30 @@ api = tradeapi.REST(
 
 #%%
 # EDA
-stock_universe = ("AAPL","GOOG","MSFT","AMZN","FB" )
+stock_universe = ("AAPL","MSFT","FB" )
+stock_universe_2 = ("AMZN","GOOG")
+stock_universe_3 = ("AMZN")
+df = api.get_bars(stock_universe_3, TimeFrame.Day, "2021-01-01", "2022-01-01").df
 
-df = api.get_bars(stock_universe, TimeFrame.Day, "2012-01-01", "2022-01-01").df
-df = df.reset_index(level=0)
-
-line_chart = sb.lineplot(data=df, x="timestamp", y='close', hue='symbol')
+# I'm not sure why this window arg doesnt want to take an offset... try resample data?
+rolling_avg = df.rolling(window=90, center=True, win_type=None, on='close', axis=0, closed='both').mean()
 
 
-fig = go.Figure(data=[go.Candlestick(x=df['timestamp'],
-                open=df['open'],
-                high=df['high'],
-                low=df['low'],
-                close=df['close'])])
+# line_chart = sb.lineplot(data=df, x="timestamp", y='close', hue='symbol')
 
-fig.show()
+
+# fig = go.Figure(data=[go.Candlestick(x=df['timestamp'],
+#                 open=df['open'],
+#                 high=df['high'],
+#                 low=df['low'],
+#                 close=df['close'])])
+
+# fig.show()
+
+
+
+
+
 
 #%%
 class universe:

@@ -1,6 +1,7 @@
 #%%
 from calendar import month
 import datetime
+from winreg import REG_DWORD_LITTLE_ENDIAN
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest import TimeFrame
 import pandas as pd
@@ -33,7 +34,7 @@ stock_universe_3 = ("AMZN")
 df = api.get_bars(stock_universe_3, TimeFrame.Day, "2021-01-01", "2022-01-01").df
 
 # I'm not sure why this window arg doesnt want to take an offset... try resample data?
-rolling_avg = df.rolling(window=90, center=True, win_type=None, on='close', axis=0, closed='both').mean()
+rolling_avg = df.rolling(window=90).mean()
 
 
 # line_chart = sb.lineplot(data=df, x="timestamp", y='close', hue='symbol')
@@ -47,7 +48,7 @@ rolling_avg = df.rolling(window=90, center=True, win_type=None, on='close', axis
 
 # fig.show()
 
-
+rolling_avg_line = sb.lineplot(data=rolling_avg, x=rolling_avg.index, y='close')
 
 
 

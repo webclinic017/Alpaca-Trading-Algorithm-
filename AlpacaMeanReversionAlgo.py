@@ -9,8 +9,8 @@ import statistics as st
 import statsmodels.tsa.api as tsa
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sb
 import plotly.graph_objects as go
+import plotly.express as px
 
 # PAPER KEYS
 APCA_API_KEY_ID_paper = 'PK2887AEKCPBT1FSOMCC'
@@ -33,24 +33,58 @@ stock_universe_2 = ("AMZN","GOOG")
 stock_universe_3 = ("AMZN")
 df = api.get_bars(stock_universe_3, TimeFrame.Day, "2021-01-01", "2022-01-01").df
 
-# I'm not sure why this window arg doesnt want to take an offset... try resample data?
-rolling_avg = df.rolling(window=90).mean()
+#candle stick graph
+fig = go.Figure(data=[go.Candlestick(x=df.index,
+                open=df['open'],
+                high=df['high'],
+                low=df['low'],
+                close=df['close'])])
+fig.show()
+
+#%%
+# Rolling averages
+
+ninety_day_rolling_avg = df.rolling(window=90).mean()
+df['close_90_day_avg'] = ninety_day_rolling_avg['close']
+ninety_day_rolling_std = df.rolling(90).std()
+df['close_90_day_std'] = ninety_day_rolling_std['close']
+
+thirty_day_rolling_avg = df.rolling(30).mean()
+df['close_30_day_avg'] = ninety_day_rolling_avg['close']
+ninety_day_rolling_std = df.rolling(30).std()
+df['close_30_day_std'] = ninety_day_rolling_std['close']
 
 
-# line_chart = sb.lineplot(data=df, x="timestamp", y='close', hue='symbol')
 
+# Graphing 90 day moving avg close price against the close price
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=df.index, y=df['close'],
+                    mode='lines',
+                    name='close'))
+fig.add_trace(go.Scatter(x=df.index, y=df['close_90_day_avg'],
+                    mode='lines',
+                    name='close_90_day_avg'))
+fig.add_trace(go.Scatter(x=df.index, y=df['close_90_day_std'],
+                    mode='lines',
+                    name='close_90_day_std'))
+fig.show()
 
-# fig = go.Figure(data=[go.Candlestick(x=df['timestamp'],
-#                 open=df['open'],
-#                 high=df['high'],
-#                 low=df['low'],
-#                 close=df['close'])])
+fig = px.histogram(df, x=df['close_90_day_std'])
+fig.show()
+fig = px.histogram(df, x=df['close_30_day_std'])
+fig.show()
 
-# fig.show()
+#%%
 
-rolling_avg_line = sb.lineplot(data=rolling_avg, x=rolling_avg.index, y='close')
+# std from varying timeframes from today
+df.index.sort_values('asc')
+df_sigma_10_days = df.head(10).std()
+df_sigma_20_days = df.head(20).std()
+df_sigma_30_days = df.head(30).std()
 
-
+close_sigma_10_days = df_sigma_10_days['close']
+close_sigma_20_days = df_sigma_20_days['close']
+close_sigma_30_days = df_sigma_30_days['close']
 
 
 #%%
@@ -86,3 +120,5 @@ class mean_reversion:
 
     def results(self,):
         pass
+
+# %%

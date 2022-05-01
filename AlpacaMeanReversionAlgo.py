@@ -88,6 +88,20 @@ close_sigma_30_days = df_sigma_30_days['close']
 
 
 #%%
+
+# Standard deviation, Bollinger Bands, Money Flow, distance from a moving average, can all be used to locate extreme or unusual price moves. A good mean reversion indicator identifies extremes in prices that are likely to be temporary, not permanent.
+# CAR / MDD is your Compound Annual Return divided by your Maximum Draw Down.
+
+# set up bolinger bands to trigger buy/sell
+
+#%%
+def buy(symbol):
+    pass
+
+def sell(symbol):
+    pass
+
+
 class universe:
     def __init__(self, stock_universe, timeframe=None):
         if timeframe == None:
